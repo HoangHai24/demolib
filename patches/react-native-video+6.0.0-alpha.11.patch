@@ -1,0 +1,63 @@
+diff --git a/node_modules/react-native-video/android/build.gradle b/node_modules/react-native-video/android/build.gradle
+index 443d055..fd9928d 100644
+--- a/node_modules/react-native-video/android/build.gradle
++++ b/node_modules/react-native-video/android/build.gradle
+@@ -152,7 +152,7 @@ dependencies {
+     // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
+     //noinspection GradleDynamicVersion
+     implementation "com.facebook.react:react-native:+"
+-    implementation('com.google.android.exoplayer:exoplayer:2.18.1') {
++    implementation('com.google.android.exoplayer:exoplayer:2.19.1') {
+         exclude group: 'com.android.support'
+     }
+ 
+diff --git a/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ReactExoplayerView.java b/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ReactExoplayerView.java
+index 5bad9ba..14e1cfd 100644
+--- a/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ReactExoplayerView.java
++++ b/node_modules/react-native-video/android/src/main/java/com/brentvatne/exoplayer/ReactExoplayerView.java
+@@ -16,6 +16,7 @@ import android.os.Handler;
+ import android.os.Looper;
+ import android.os.Message;
+ import android.text.TextUtils;
++import android.util.Log;
+ import android.view.View;
+ import android.view.Window;
+ import android.view.accessibility.CaptioningManager;
+@@ -683,10 +684,14 @@ public class ReactExoplayerView extends FrameLayout implements
+         MediaSource videoSource = buildMediaSource(self.srcUri, self.extension, drmSessionManager, startTimeMs, endTimeMs);
+         MediaSource mediaSourceWithAds = null;
+         if (adTagUrl != null) {
++            Log.d("ReactExo=>>687", adTagUrl.toString());
+             MediaSource.Factory mediaSourceFactory = new DefaultMediaSourceFactory(mediaDataSourceFactory)
+                     .setLocalAdInsertionComponents(unusedAdTagUri -> adsLoader, exoPlayerView);
++            Log.d("ReactExo=>>690", "123");
+             DataSpec adTagDataSpec = new DataSpec(adTagUrl);
++            Log.d("ReactExo=>>692", "123");
+             mediaSourceWithAds = new AdsMediaSource(videoSource, adTagDataSpec, ImmutableList.of(srcUri, adTagUrl), mediaSourceFactory, adsLoader, exoPlayerView);
++            Log.d("ReactExo=>>694", "123");
+         }
+         MediaSource mediaSource;
+         if (mediaSourceList.size() == 0) {
+@@ -759,7 +764,10 @@ public class ReactExoplayerView extends FrameLayout implements
+                 // When DRM fails using L1 we want to switch to L3
+                 mediaDrm.setPropertyString("securityLevel", "L3");
+             }
+-            return new DefaultDrmSessionManager(uuid, mediaDrm, drmCallback, null, false, 3);
++            return buildDrmSessionManager(uuid, licenseUrl, keyRequestPropertiesArray, 0);
++
++//            return new DefaultDrmSessionManager(uuid, mediaDrm, drmCallback, )
++//            return new DefaultDrmSessionManager(uuid, mediaDrm, drmCallback, null, false, 3);
+         } catch(UnsupportedDrmException ex) {
+             // Unsupported DRM exceptions are handled by the calling method
+             throw ex;
+@@ -783,8 +791,9 @@ public class ReactExoplayerView extends FrameLayout implements
+         config.setDisableDisconnectError(this.disableDisconnectError);
+ 
+         MediaItem.Builder mediaItemBuilder = new MediaItem.Builder().setUri(uri);
+-
++        Log.d("ReactExo=>>794", "123");
+         if (adTagUrl != null) {
++            Log.d("ReactExo=>>796", "123");
+             mediaItemBuilder.setAdsConfiguration(
+                     new MediaItem.AdsConfiguration.Builder(adTagUrl).build()
+             );
